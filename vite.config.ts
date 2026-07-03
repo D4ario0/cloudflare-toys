@@ -1,17 +1,8 @@
-import zodCompiler from "zod-compiler/vite";
-
 export default {
-  plugins: [
-    zodCompiler({
-      apply: "build",
-      include: ["src/**/*.ts"],
-      output: "compact",
-    }),
-  ],
   build: {
     outDir: "dist",
-    sourcemap: true,
-    emptyOutDir: false,
+    sourcemap: false,
+    emptyOutDir: true,
     lib: {
       entry: {
         "images/index": "src/images/index.ts",
