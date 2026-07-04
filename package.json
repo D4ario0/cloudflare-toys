@@ -26,9 +26,9 @@
       "default": "./dist/wae/index.js"
     },
     "./misc/better-auth": {
-      "types": "./dist/miscellaneous/better-auth.d.ts",
-      "import": "./dist/miscellaneous/better-auth.js",
-      "default": "./dist/miscellaneous/better-auth.js"
+      "types": "./dist/misc/better-auth.d.ts",
+      "import": "./dist/misc/better-auth.js",
+      "default": "./dist/misc/better-auth.js"
     },
     "./package.json": "./package.json"
   },
