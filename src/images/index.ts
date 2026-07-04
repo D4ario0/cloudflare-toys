@@ -1,7 +1,6 @@
 import { createFetch } from "@better-fetch/fetch";
+import { CLOUDFLARE_ORIGIN } from "../constants";
 import _SCHEMA_ from "./schema";
-
-const CLOUDFLARE_ORIGIN = "https://api.cloudflare.com/client/v4" as const;
 
 type CFImagesOptions = {
   accountId: string;
@@ -9,7 +8,7 @@ type CFImagesOptions = {
   origin?: string; // for testing purposes
 };
 
-export default function createCFImages({
+export default function createImagesClient({
   accountId,
   apiToken,
   origin = CLOUDFLARE_ORIGIN,

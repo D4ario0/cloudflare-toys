@@ -1,6 +1,5 @@
 import { trimTrailingSlash } from "../utils";
-
-const DEFAULT_ORIGIN = "https://imagedelivery.net" as const;
+import { IMAGE_DELIVERY_ORIGIN } from "../constants";
 
 type Variant = {
   name: string;
@@ -22,7 +21,7 @@ type ImageUrlOptions<T extends string> = {
 export function defineVariants<const T extends readonly Variant[]>(
   accountHash: string,
   variants: T,
-  { origin = DEFAULT_ORIGIN }: DefineVariantsOptions = {},
+  { origin = IMAGE_DELIVERY_ORIGIN }: DefineVariantsOptions = {},
 ) {
   return {
     variants,
