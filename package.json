@@ -20,6 +20,11 @@
       "import": "./dist/images/variants.js",
       "default": "./dist/images/variants.js"
     },
+    "./turnstile": {
+      "types": "./dist/turnstile/index.d.ts",
+      "import": "./dist/turnstile/index.js",
+      "default": "./dist/turnstile/index.js"
+    },
     "./wae": {
       "types": "./dist/wae/index.d.ts",
       "import": "./dist/wae/index.js",
