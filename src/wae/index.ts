@@ -8,19 +8,25 @@ type WAEOptions = {
   origin?: string;
 };
 
-export default function createCFWAE({
+interface WAESQLExpression {
+  toSQL(): string;
+}
+
+export default function createWAEClient({
   accountId,
   apiToken,
   origin = CLOUDFLARE_ORIGIN,
 }: WAEOptions) {
-  return createFetch({
+  const $fetch = createFetch({
     baseURL: `${origin}/accounts/${accountId}/analytics_engine`,
-    auth: {
-      type: "Bearer",
-      token: apiToken,
-    },
+    auth: { type: "Bearer", token: apiToken },
     schema: _SCHEMA_,
   });
-}
 
-const wae = createCFWAE({ accountId: "", apiToken: "" });
+  return {
+    query: (expr: string | WAESQLExpression) =>
+      $fetch("@post/sql", {
+        body: typeof expr === "string" ? expr : expr.toSQL(),
+      }),
+  };
+}
