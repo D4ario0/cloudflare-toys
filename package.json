@@ -19,6 +19,10 @@
       "types": "./dist/wae/index.d.ts",
       "import": "./dist/wae/index.js"
     },
+    "./misc/better-auth": {
+      "types": "./dist/miscellaneous/better-auth.d.ts",
+      "import": "./dist/misc/better-auth.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -30,7 +34,17 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260704.1",
+    "better-auth": "^1.6.23",
     "typescript": "^6.0.3",
     "vite": "^8.1.3"
+  },
+  "peerDependencies": {
+    "better-auth": ">=1.5.0 <2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "better-auth": {
+      "optional": true
+    }
   }
 }
