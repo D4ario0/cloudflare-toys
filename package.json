@@ -1,34 +1,66 @@
 {
   "name": "cloudflare-toys",
   "version": "0.1.0",
+  "description": "Small typed helpers for Cloudflare Workers, Images, and Workers Analytics Engine.",
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "exports": {
     "./images": {
       "types": "./dist/images/index.d.ts",
-      "import": "./dist/images/index.js"
+      "import": "./dist/images/index.js",
+      "default": "./dist/images/index.js"
     },
     "./images/variants": {
       "types": "./dist/images/variants.d.ts",
-      "import": "./dist/images/variants.js"
+      "import": "./dist/images/variants.js",
+      "default": "./dist/images/variants.js"
     },
     "./wae": {
       "types": "./dist/wae/index.d.ts",
-      "import": "./dist/wae/index.js"
+      "import": "./dist/wae/index.js",
+      "default": "./dist/wae/index.js"
     },
     "./misc/better-auth": {
       "types": "./dist/miscellaneous/better-auth.d.ts",
-      "import": "./dist/misc/better-auth.js"
+      "import": "./dist/miscellaneous/better-auth.js",
+      "default": "./dist/miscellaneous/better-auth.js"
     },
     "./package.json": "./package.json"
   },
   "scripts": {
     "build": "rm -rf dist && bunx vite build && bunx tsc -p tsconfig.json",
-    "typecheck": "bunx tsc -p tsconfig.json --noEmit"
+    "typecheck": "bunx tsc -p tsconfig.json --noEmit",
+    "check": "bun run typecheck",
+    "prepack": "bun run build"
   },
+  "keywords": [
+    "cloudflare",
+    "cloudflare-workers",
+    "workers",
+    "cloudflare-images",
+    "workers-analytics-engine",
+    "wae",
+    "better-auth",
+    "typescript",
+    "edge",
+    "api-client"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/D4ario0/cloudflare-toys.git"
+  },
+  "bugs": {
+    "url": "https://github.com/D4ario0/cloudflare-toys/issues"
+  },
+  "homepage": "https://github.com/D4ario0/cloudflare-toys#readme",
+  "author": "D4ario0",
+  "license": "GPL-2.0",
+  "packageManager": "pnpm@11.9.0",
   "dependencies": {
     "@better-fetch/fetch": "^1.3.1",
     "zod": "^4.4.3"
