@@ -36,10 +36,28 @@ const imageListV1 = z.object({
   images: z.array(image).optional(),
 });
 
+const listImagesV1Query = z
+  .object({
+    creator: z.string().optional(),
+    page: z.number().int().positive().optional(),
+    per_page: z.number().int().positive().max(100).optional(),
+  })
+  .optional();
+
 const imageListV2 = z.object({
   continuation_token: z.string().optional(),
   images: z.array(image).optional(),
 });
+
+const listImagesV2Query = z
+  .object({
+    continuation_token: z.string().optional(),
+    creator: z.string().optional(),
+    meta: z.record(z.string(), z.string()).optional(),
+    per_page: z.number().int().positive().max(1000).optional(),
+    sort_order: z.enum(["asc", "desc"]).optional(),
+  })
+  .optional();
 
 const keyList = z.object({
   keys: z
@@ -83,6 +101,12 @@ const directUploadInput = formDataBody(
     }),
 );
 
+const updateImageInput = z.object({
+  creator: z.string().optional(),
+  metadata: z.unknown().optional(),
+  requireSignedURLs: z.boolean().optional(),
+});
+
 const variantOptions = z.object({
   fit: z.enum(["scale-down", "contain", "cover", "crop", "pad"]),
   height: z.number().int().positive(),
@@ -102,15 +126,37 @@ const variantResponse = z.object({
   variant: variant.optional(),
 });
 
+const createVariantInput = z.object({
+  id: z.string(),
+  options: variantOptions,
+  neverRequireSignedURLs: z.boolean().optional(),
+});
+
+const updateVariantInput = z.object({
+  options: variantOptions,
+  neverRequireSignedURLs: z.boolean().optional(),
+});
+
+export {
+  createVariantInput,
+  directUploadInput,
+  image,
+  imageListV1,
+  imageListV2,
+  keyList,
+  listImagesV1Query,
+  listImagesV2Query,
+  updateImageInput,
+  updateVariantInput,
+  uploadImageInput,
+  variant,
+  variantOptions,
+  variantResponse,
+};
+
 const _SCHEMA_ = createSchema({
   "@get/v1": {
-    query: z
-      .object({
-        creator: z.string().optional(),
-        page: z.number().int().positive().optional(),
-        per_page: z.number().int().positive().max(100).optional(),
-      })
-      .optional(),
+    query: listImagesV1Query,
     output: cloudflareResponse(imageListV1),
   },
   "@get/v1/:image_id": {
@@ -121,11 +167,7 @@ const _SCHEMA_ = createSchema({
     output: cloudflareResponse(image),
   },
   "@patch/v1/:image_id": {
-    input: z.object({
-      creator: z.string().optional(),
-      metadata: z.unknown().optional(),
-      requireSignedURLs: z.boolean().optional(),
-    }),
+    input: updateImageInput,
     output: cloudflareResponse(image),
   },
   "@delete/v1/:image_id": {
@@ -163,18 +205,11 @@ const _SCHEMA_ = createSchema({
     output: cloudflareResponse(variantResponse),
   },
   "@post/v1/variants": {
-    input: z.object({
-      id: z.string(),
-      options: variantOptions,
-      neverRequireSignedURLs: z.boolean().optional(),
-    }),
+    input: createVariantInput,
     output: cloudflareResponse(variantResponse),
   },
   "@patch/v1/variants/:variant_id": {
-    input: z.object({
-      options: variantOptions,
-      neverRequireSignedURLs: z.boolean().optional(),
-    }),
+    input: updateVariantInput,
     output: cloudflareResponse(variantResponse),
   },
   "@delete/v1/variants/:variant_id": {
@@ -182,15 +217,7 @@ const _SCHEMA_ = createSchema({
   },
   "@get/v1/:image_id/blob": {},
   "@get/v2": {
-    query: z
-      .object({
-        continuation_token: z.string().optional(),
-        creator: z.string().optional(),
-        meta: z.record(z.string(), z.string()).optional(),
-        per_page: z.number().int().positive().max(1000).optional(),
-        sort_order: z.enum(["asc", "desc"]).optional(),
-      })
-      .optional(),
+    query: listImagesV2Query,
     output: cloudflareResponse(imageListV2),
   },
   "@post/v2/direct_upload": {
@@ -205,3 +232,11 @@ const _SCHEMA_ = createSchema({
 });
 
 export default _SCHEMA_;
+
+export type ListImagesOptions = z.input<typeof listImagesV1Query>;
+export type ListImagesV2Options = z.input<typeof listImagesV2Query>;
+export type UploadImageOptions = z.input<typeof uploadImageInput>;
+export type UpdateImageOptions = z.input<typeof updateImageInput>;
+export type DirectUploadOptions = z.input<typeof directUploadInput>;
+export type CreateVariantOptions = z.input<typeof createVariantInput>;
+export type UpdateVariantOptions = z.input<typeof updateVariantInput>;
