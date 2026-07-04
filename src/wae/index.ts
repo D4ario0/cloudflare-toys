@@ -1,5 +1,6 @@
 import { createFetch } from "@better-fetch/fetch";
 import { CLOUDFLARE_ORIGIN } from "../constants";
+import { trimTrailingSlash } from "../utils";
 import _SCHEMA_ from "./schema";
 
 type WAEOptions = {
@@ -18,7 +19,7 @@ export default function createWAEClient({
   origin = CLOUDFLARE_ORIGIN,
 }: WAEOptions) {
   const $fetch = createFetch({
-    baseURL: `${origin}/accounts/${accountId}/analytics_engine`,
+    baseURL: `${trimTrailingSlash(origin)}/accounts/${accountId}/analytics_engine`,
     auth: { type: "Bearer", token: apiToken },
     schema: _SCHEMA_,
   });

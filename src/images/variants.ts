@@ -21,16 +21,15 @@ type ImageUrlOptions<T extends string> = {
 export function defineVariants<const T extends readonly Variant[]>(
   accountHash: string,
   variants: T,
-  { origin = IMAGE_DELIVERY_ORIGIN }: DefineVariantsOptions = {},
+  options?: DefineVariantsOptions,
 ) {
+  const origin = options?.origin
+    ? trimTrailingSlash(options.origin)
+    : IMAGE_DELIVERY_ORIGIN;
   return {
     variants,
-    image_url({
-      imageId,
-      variant,
-      origin: requestOrigin,
-    }: ImageUrlOptions<VariantName<T>>) {
-      return `${trimTrailingSlash(requestOrigin ?? origin)}/${accountHash}/${imageId}/${variant}`;
+    image_url(options: ImageUrlOptions<VariantName<T>>) {
+      return `${origin}/${accountHash}/${options.imageId}/${options.variant}`;
     },
   };
 }
