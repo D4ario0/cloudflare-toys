@@ -8,6 +8,7 @@ export default {
         "images/index": "src/images/index.ts",
         "images/variants": "src/images/variants.ts",
         "wae/index": "src/wae/index.ts",
+        "misc/better-auth": "src/miscellaneous/better-auth.ts",
       },
       formats: ["es"],
     },
