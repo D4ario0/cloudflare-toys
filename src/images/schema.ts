@@ -1,25 +1,6 @@
 import { createSchema } from "@better-fetch/fetch";
 import * as v from "valibot";
-import { formDataBody } from "../utils";
-
-const responseInfo = v.object({
-  code: v.number(),
-  message: v.string(),
-  documentation_url: v.optional(v.string()),
-  source: v.optional(
-    v.object({
-      pointer: v.optional(v.string()),
-    }),
-  ),
-});
-
-const cloudflareResponse = <T extends v.GenericSchema>(result: T) =>
-  v.object({
-    errors: v.array(responseInfo),
-    messages: v.array(responseInfo),
-    result,
-    success: v.literal(true),
-  });
+import { cloudflareResponse, formDataBody } from "../utils";
 
 const image = v.object({
   id: v.optional(v.string()),

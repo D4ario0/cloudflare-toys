@@ -1,6 +1,6 @@
 import { createFetch } from "@better-fetch/fetch";
 import { CLOUDFLARE_ORIGIN } from "../constants";
-import { trimTrailingSlash } from "../utils";
+import { isCFError, trimTrailingSlash } from "../utils";
 
 import _SCHEMA_ from "./schema";
 import type {
@@ -12,6 +12,15 @@ import type {
   CreateVariantOptions,
   UpdateVariantOptions,
 } from "./schema";
+import type {
+  CFErrorResponse,
+  CFResponse,
+  CFResponseInfo,
+  CFSuccessResponse,
+} from "../utils";
+
+export { isCFError };
+export type { CFErrorResponse, CFResponse, CFResponseInfo, CFSuccessResponse };
 
 type ImagesStorageOptions = {
   accountId: string;

@@ -33,6 +33,27 @@ if (error) {
 }
 ```
 
+Cloudflare REST API errors are returned inside the Cloudflare response envelope. Use `isCFError` to distinguish that layer from Better Fetch request errors:
+
+```ts
+import createImagesStorageClient, { isCFError } from "cloudflare-toys/images/storage";
+
+const { data, error } = await images.get("image-id");
+
+if (error) {
+  // Fetch, HTTP, parsing, or schema error.
+  return;
+}
+
+if (isCFError(data)) {
+  // Cloudflare API envelope error.
+  console.error(data.errors);
+  return;
+}
+
+console.log(data.result);
+```
+
 ## Upload an image from a URL
 
 ```ts
