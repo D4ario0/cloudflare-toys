@@ -1,8 +1,8 @@
 import { createSchema } from "@better-fetch/fetch";
-import * as z from "zod";
+import * as v from "valibot";
 import { formDataBody } from "../utils";
 
-const turnstileErrorCode = z.enum([
+const turnstileErrorCode = v.picklist([
   "missing-input-secret",
   "invalid-input-secret",
   "missing-input-response",
@@ -13,26 +13,26 @@ const turnstileErrorCode = z.enum([
 ]);
 
 const siteverifyInput = formDataBody(
-  z.object({
-    secret: z.string().min(1),
-    response: z.string().min(1).max(2048),
-    remoteip: z.string().optional(),
-    idempotency_key: z.uuid().optional(),
+  v.object({
+    secret: v.pipe(v.string(), v.minLength(1)),
+    response: v.pipe(v.string(), v.minLength(1), v.maxLength(2048)),
+    remoteip: v.optional(v.string()),
+    idempotency_key: v.optional(v.pipe(v.string(), v.uuid())),
   }),
 );
 
-const siteverifyResponse = z.object({
-  success: z.boolean(),
-  challenge_ts: z.string().optional(),
-  hostname: z.string().optional(),
-  action: z.string().optional(),
-  cdata: z.string().optional(),
-  "error-codes": z.array(turnstileErrorCode).optional(),
-  metadata: z
-    .object({
-      ephemeral_id: z.string().optional(),
-    })
-    .optional(),
+const siteverifyResponse = v.object({
+  success: v.boolean(),
+  challenge_ts: v.optional(v.string()),
+  hostname: v.optional(v.string()),
+  action: v.optional(v.string()),
+  cdata: v.optional(v.string()),
+  "error-codes": v.optional(v.array(turnstileErrorCode)),
+  metadata: v.optional(
+    v.object({
+      ephemeral_id: v.optional(v.string()),
+    }),
+  ),
 });
 
 export { siteverifyInput, siteverifyResponse, turnstileErrorCode };
@@ -46,9 +46,9 @@ const _SCHEMA_ = createSchema({
 
 export default _SCHEMA_;
 
-export type SiteverifyOptions = Omit<
-  z.input<typeof siteverifyInput>,
-  "secret" | "response"
->;
-export type TurnstileErrorCode = z.infer<typeof turnstileErrorCode>;
-export type TurnstileSiteverifyResponse = z.infer<typeof siteverifyResponse>;
+export type SiteverifyOptions = {
+  remoteip?: string;
+  idempotency_key?: string;
+};
+export type TurnstileErrorCode = v.InferOutput<typeof turnstileErrorCode>;
+export type TurnstileSiteverifyResponse = v.InferOutput<typeof siteverifyResponse>;

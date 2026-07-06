@@ -50,7 +50,7 @@ The clients are thin typed wrappers around Cloudflare APIs:
 
 - credentials are passed explicitly
 - no SvelteKit, Hono, Next.js, or Worker handler coupling
-- schemas are defined with Zod and Better Fetch
+- schemas are defined with Valibot and Better Fetch
 - methods return Better Fetch results, usually `{ data, error }`
 - modules are split by Cloudflare product so apps only import what they use
 - subpath exports keep imports tree-shakeable and Worker bundles small

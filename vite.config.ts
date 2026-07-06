@@ -14,12 +14,19 @@ export default {
       formats: ["es"],
     },
     rollupOptions: {
-      external: ["zod", "zod/mini", "better-auth"],
+      external: ["better-auth"],
       output: {
-        entryFileNames: (chunk) =>
-          chunk.facadeModuleId?.includes("@better-fetch/fetch")
-            ? "vendor/better-fetch.js"
-            : "[name].js",
+        entryFileNames: (chunk) => {
+          if (chunk.facadeModuleId?.includes("@better-fetch/fetch")) {
+            return "vendor/better-fetch.js";
+          }
+
+          if (chunk.facadeModuleId?.includes("valibot")) {
+            return "vendor/valibot.js";
+          }
+
+          return "[name].js";
+        },
         preserveModules: true,
         preserveModulesRoot: "src",
       },

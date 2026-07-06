@@ -1,18 +1,18 @@
 import { createSchema } from "@better-fetch/fetch";
-import * as z from "zod";
+import * as v from "valibot";
 
 const _SCHEMA_ = createSchema({
   "@post/sql": {
-    input: z.string().min(1),
-    output: z.object({
-      meta: z.array(
-        z.object({
-          name: z.string(),
-          type: z.string(),
+    input: v.pipe(v.string(), v.minLength(1)),
+    output: v.object({
+      meta: v.array(
+        v.object({
+          name: v.string(),
+          type: v.string(),
         }),
       ),
-      data: z.array(z.record(z.string(), z.unknown())),
-      rows: z.number().int().nonnegative(),
+      data: v.array(v.record(v.string(), v.unknown())),
+      rows: v.pipe(v.number(), v.integer(), v.minValue(0)),
     }),
   },
 });

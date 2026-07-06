@@ -1,140 +1,152 @@
 import { createSchema } from "@better-fetch/fetch";
-import * as z from "zod";
+import * as v from "valibot";
 import { formDataBody } from "../utils";
 
-const responseInfo = z.object({
-  code: z.number(),
-  message: z.string(),
-  documentation_url: z.string().optional(),
-  source: z
-    .object({
-      pointer: z.string().optional(),
-    })
-    .optional(),
+const responseInfo = v.object({
+  code: v.number(),
+  message: v.string(),
+  documentation_url: v.optional(v.string()),
+  source: v.optional(
+    v.object({
+      pointer: v.optional(v.string()),
+    }),
+  ),
 });
 
-const cloudflareResponse = <T extends z.ZodType>(result: T) =>
-  z.object({
-    errors: z.array(responseInfo),
-    messages: z.array(responseInfo),
+const cloudflareResponse = <T extends v.GenericSchema>(result: T) =>
+  v.object({
+    errors: v.array(responseInfo),
+    messages: v.array(responseInfo),
     result,
-    success: z.literal(true),
+    success: v.literal(true),
   });
 
-const image = z.object({
-  id: z.string().optional(),
-  creator: z.string().optional(),
-  filename: z.string().optional(),
-  meta: z.unknown().optional(),
-  requireSignedURLs: z.boolean().optional(),
-  uploaded: z.string().optional(),
-  variants: z.array(z.string()).optional(),
-  draft: z.boolean().optional(),
+const image = v.object({
+  id: v.optional(v.string()),
+  creator: v.optional(v.string()),
+  filename: v.optional(v.string()),
+  meta: v.optional(v.unknown()),
+  requireSignedURLs: v.optional(v.boolean()),
+  uploaded: v.optional(v.string()),
+  variants: v.optional(v.array(v.string())),
+  draft: v.optional(v.boolean()),
 });
 
-const imageListV1 = z.object({
-  images: z.array(image).optional(),
+const imageListV1 = v.object({
+  images: v.optional(v.array(image)),
 });
 
-const listImagesV1Query = z
-  .object({
-    creator: z.string().optional(),
-    page: z.number().int().positive().optional(),
-    per_page: z.number().int().positive().max(100).optional(),
-  })
-  .optional();
+const listImagesV1Query = v.optional(
+  v.object({
+    creator: v.optional(v.string()),
+    page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+    per_page: v.optional(
+      v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(100)),
+    ),
+  }),
+);
 
-const imageListV2 = z.object({
-  continuation_token: z.string().optional(),
-  images: z.array(image).optional(),
+const imageListV2 = v.object({
+  continuation_token: v.optional(v.string()),
+  images: v.optional(v.array(image)),
 });
 
-const listImagesV2Query = z
-  .object({
-    continuation_token: z.string().optional(),
-    creator: z.string().optional(),
-    meta: z.record(z.string(), z.string()).optional(),
-    per_page: z.number().int().positive().max(1000).optional(),
-    sort_order: z.enum(["asc", "desc"]).optional(),
-  })
-  .optional();
+const listImagesV2Query = v.optional(
+  v.object({
+    continuation_token: v.optional(v.string()),
+    creator: v.optional(v.string()),
+    meta: v.optional(v.record(v.string(), v.string())),
+    per_page: v.optional(
+      v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(1000)),
+    ),
+    sort_order: v.optional(v.picklist(["asc", "desc"])),
+  }),
+);
 
-const keyList = z.object({
-  keys: z
-    .array(
-      z.object({
-        name: z.string().optional(),
-        value: z.string().optional(),
+const keyList = v.object({
+  keys: v.optional(
+    v.array(
+      v.object({
+        name: v.optional(v.string()),
+        value: v.optional(v.string()),
       }),
-    )
-    .optional(),
+    ),
+  ),
+});
+
+const uploadImageObject = v.object({
+  file: v.optional(
+    v.custom<Blob>(
+      (value) => typeof Blob !== "undefined" && value instanceof Blob,
+    ),
+  ),
+  url: v.optional(v.pipe(v.string(), v.url())),
+  id: v.optional(v.string()),
+  metadata: v.optional(v.unknown()),
+  requireSignedURLs: v.optional(v.boolean()),
 });
 
 const uploadImageInput = formDataBody(
-  z
-    .object({
-      file: z
-        .custom<Blob>(
-          (value) => typeof Blob !== "undefined" && value instanceof Blob,
-        )
-        .optional(),
-      url: z.url().optional(),
-      id: z.string().optional(),
-      metadata: z.unknown().optional(),
-      requireSignedURLs: z.boolean().optional(),
-    })
-    .refine((value) => Boolean(value.file) !== Boolean(value.url), {
-      message: "Expected exactly one of file or url.",
-    }),
+  v.pipe(
+    uploadImageObject,
+    v.check(
+      (value) => Boolean(value.file) !== Boolean(value.url),
+      "Expected exactly one of file or url.",
+    ),
+  ),
 );
+
+const directUploadObject = v.object({
+  id: v.optional(v.string()),
+  expiry: v.optional(v.union([v.string(), v.date()])),
+  metadata: v.optional(v.unknown()),
+  requireSignedURLs: v.optional(v.boolean()),
+});
 
 const directUploadInput = formDataBody(
-  z
-    .object({
-      id: z.string().optional(),
-      expiry: z.union([z.string(), z.date()]).optional(),
-      metadata: z.unknown().optional(),
-      requireSignedURLs: z.boolean().optional(),
-    })
-    .refine((value) => !(value.id && value.requireSignedURLs), {
-      message: "Custom IDs cannot be used with requireSignedURLs.",
-    }),
+  v.pipe(
+    directUploadObject,
+    v.check(
+      (value) => !(value.id && value.requireSignedURLs),
+      "Custom IDs cannot be used with requireSignedURLs.",
+    ),
+  ),
 );
 
-const updateImageInput = z.object({
-  creator: z.string().optional(),
-  metadata: z.unknown().optional(),
-  requireSignedURLs: z.boolean().optional(),
+const updateImageInput = v.object({
+  creator: v.optional(v.string()),
+  metadata: v.optional(v.unknown()),
+  requireSignedURLs: v.optional(v.boolean()),
 });
 
-const variantOptions = z.object({
-  fit: z.enum(["scale-down", "contain", "cover", "crop", "pad"]),
-  height: z.number().int().positive(),
-  metadata: z.enum(["keep", "copyright", "none"]),
-  width: z.number().int().positive(),
+const variantOptions = v.object({
+  fit: v.picklist(["scale-down", "contain", "cover", "crop", "pad"]),
+  height: v.pipe(v.number(), v.integer(), v.minValue(1)),
+  metadata: v.picklist(["keep", "copyright", "none"]),
+  width: v.pipe(v.number(), v.integer(), v.minValue(1)),
 });
 
-const variant = z.object({
-  id: z.string(),
+const variant = v.object({
+  id: v.string(),
   options: variantOptions,
-  neverRequireSignedURLs: z.boolean().optional(),
+  neverRequireSignedURLs: v.optional(v.boolean()),
 });
 
-const variantMap = z.record(z.string(), variant);
+const variantMap = v.record(v.string(), variant);
 
-const variantResponse = z.object({
-  variant: variant.optional(),
+const variantResponse = v.object({
+  variant: v.optional(variant),
 });
 
-const createVariantInput = z.object({
-  id: z.string(),
+const createVariantInput = v.object({
+  id: v.string(),
   options: variantOptions,
-  neverRequireSignedURLs: z.boolean().optional(),
+  neverRequireSignedURLs: v.optional(v.boolean()),
 });
 
-const updateVariantInput = z.object({
+const updateVariantInput = v.object({
   options: variantOptions,
-  neverRequireSignedURLs: z.boolean().optional(),
+  neverRequireSignedURLs: v.optional(v.boolean()),
 });
 
 export {
@@ -171,7 +183,7 @@ const _SCHEMA_ = createSchema({
     output: cloudflareResponse(image),
   },
   "@delete/v1/:image_id": {
-    output: cloudflareResponse(z.unknown()),
+    output: cloudflareResponse(v.unknown()),
   },
   "@get/v1/keys": {
     output: cloudflareResponse(keyList),
@@ -184,20 +196,20 @@ const _SCHEMA_ = createSchema({
   },
   "@get/v1/stats": {
     output: cloudflareResponse(
-      z.object({
-        count: z
-          .object({
-            allowed: z.number().optional(),
-            current: z.number().optional(),
-          })
-          .optional(),
+      v.object({
+        count: v.optional(
+          v.object({
+            allowed: v.optional(v.number()),
+            current: v.optional(v.number()),
+          }),
+        ),
       }),
     ),
   },
   "@get/v1/variants": {
     output: cloudflareResponse(
-      z.object({
-        variants: variantMap.optional(),
+      v.object({
+        variants: v.optional(variantMap),
       }),
     ),
   },
@@ -213,7 +225,7 @@ const _SCHEMA_ = createSchema({
     output: cloudflareResponse(variantResponse),
   },
   "@delete/v1/variants/:variant_id": {
-    output: cloudflareResponse(z.unknown()),
+    output: cloudflareResponse(v.unknown()),
   },
   "@get/v1/:image_id/blob": {},
   "@get/v2": {
@@ -223,9 +235,9 @@ const _SCHEMA_ = createSchema({
   "@post/v2/direct_upload": {
     input: directUploadInput,
     output: cloudflareResponse(
-      z.object({
-        id: z.string().optional(),
-        uploadURL: z.string().optional(),
+      v.object({
+        id: v.optional(v.string()),
+        uploadURL: v.optional(v.string()),
       }),
     ),
   },
@@ -233,10 +245,10 @@ const _SCHEMA_ = createSchema({
 
 export default _SCHEMA_;
 
-export type ListImagesOptions = z.input<typeof listImagesV1Query>;
-export type ListImagesV2Options = z.input<typeof listImagesV2Query>;
-export type UploadImageOptions = z.input<typeof uploadImageInput>;
-export type UpdateImageOptions = z.input<typeof updateImageInput>;
-export type DirectUploadOptions = z.input<typeof directUploadInput>;
-export type CreateVariantOptions = z.input<typeof createVariantInput>;
-export type UpdateVariantOptions = z.input<typeof updateVariantInput>;
+export type ListImagesOptions = v.InferInput<typeof listImagesV1Query>;
+export type ListImagesV2Options = v.InferInput<typeof listImagesV2Query>;
+export type UploadImageOptions = v.InferInput<typeof uploadImageObject>;
+export type UpdateImageOptions = v.InferInput<typeof updateImageInput>;
+export type DirectUploadOptions = v.InferInput<typeof directUploadObject>;
+export type CreateVariantOptions = v.InferInput<typeof createVariantInput>;
+export type UpdateVariantOptions = v.InferInput<typeof updateVariantInput>;
