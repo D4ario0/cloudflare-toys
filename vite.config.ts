@@ -5,7 +5,7 @@ export default {
     emptyOutDir: true,
     lib: {
       entry: {
-        "images/index": "src/images/index.ts",
+        "images/storage": "src/images/storage.ts",
         "images/variants": "src/images/variants.ts",
         "turnstile/index": "src/turnstile/index.ts",
         "wae/index": "src/wae/index.ts",
@@ -14,9 +14,12 @@ export default {
       formats: ["es"],
     },
     rollupOptions: {
-      external: ["@better-fetch/fetch", "zod", "zod/mini"],
+      external: ["zod", "zod/mini", "better-auth"],
       output: {
-        entryFileNames: "[name].js",
+        entryFileNames: (chunk) =>
+          chunk.facadeModuleId?.includes("@better-fetch/fetch")
+            ? "vendor/better-fetch.js"
+            : "[name].js",
         preserveModules: true,
         preserveModulesRoot: "src",
       },

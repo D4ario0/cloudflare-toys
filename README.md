@@ -1,6 +1,10 @@
 # cloudflare-toys
 
-Small typed helpers for Cloudflare Workers-adjacent projects.
+Small typed, tree-shakeable helpers for Cloudflare Workers-adjacent projects.
+
+Designed around subpath exports so apps only import the Cloudflare helpers they use.
+
+Docs: https://d4ario0.github.io/cloudflare-toys/
 
 ## Install
 
@@ -8,12 +12,12 @@ Small typed helpers for Cloudflare Workers-adjacent projects.
 pnpm add cloudflare-toys
 ```
 
-## Cloudflare Images
+## Cloudflare Images Storage
 
 ```ts
-import createImagesClient from "cloudflare-toys/images";
+import createImagesStorageClient from "cloudflare-toys/images/storage";
 
-const images = createImagesClient({
+const images = createImagesStorageClient({
   accountId: process.env.CLOUDFLARE_ACCOUNT_ID!,
   apiToken: process.env.CLOUDFLARE_API_TOKEN!,
 });

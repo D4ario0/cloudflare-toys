@@ -10,10 +10,10 @@
     "LICENSE"
   ],
   "exports": {
-    "./images": {
-      "types": "./dist/images/index.d.ts",
-      "import": "./dist/images/index.js",
-      "default": "./dist/images/index.js"
+    "./images/storage": {
+      "types": "./dist/images/storage.d.ts",
+      "import": "./dist/images/storage.js",
+      "default": "./dist/images/storage.js"
     },
     "./images/variants": {
       "types": "./dist/images/variants.d.ts",
@@ -31,7 +31,7 @@
       "default": "./dist/wae/index.js"
     },
     "./misc/better-auth": {
-      "types": "./dist/misc/better-auth.d.ts",
+      "types": "./dist/miscellaneous/better-auth.d.ts",
       "import": "./dist/misc/better-auth.js",
       "default": "./dist/misc/better-auth.js"
     },
@@ -41,6 +41,9 @@
     "build": "rm -rf dist && bunx vite build && bunx tsc -p tsconfig.json",
     "typecheck": "bunx tsc -p tsconfig.json --noEmit",
     "check": "bun run typecheck",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "prepack": "bun run build"
   },
   "keywords": [
@@ -74,7 +77,8 @@
     "@cloudflare/workers-types": "^5.20260704.1",
     "better-auth": "^1.6.23",
     "typescript": "^6.0.3",
-    "vite": "^8.1.3"
+    "vite": "^8.1.3",
+    "vitepress": "2.0.0-alpha.17"
   },
   "peerDependencies": {
     "better-auth": ">=1.5.0 <2.0.0"
