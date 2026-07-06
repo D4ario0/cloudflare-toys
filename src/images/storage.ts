@@ -1,5 +1,4 @@
 import { createFetch } from "@better-fetch/fetch";
-import type { z } from "zod";
 import { CLOUDFLARE_ORIGIN } from "../constants";
 import { trimTrailingSlash } from "../utils";
 
@@ -14,17 +13,17 @@ import type {
   UpdateVariantOptions,
 } from "./schema";
 
-type CFImagesOptions = {
+type ImagesStorageOptions = {
   accountId: string;
   apiToken: string;
   origin?: string; // for testing purposes
 };
 
-export default function createImagesClient({
+export default function createImagesStorageClient({
   accountId,
   apiToken,
   origin = CLOUDFLARE_ORIGIN,
-}: CFImagesOptions) {
+}: ImagesStorageOptions) {
   const $fetch = createFetch({
     baseURL: `${trimTrailingSlash(origin)}/accounts/${accountId}/images`,
     auth: {
