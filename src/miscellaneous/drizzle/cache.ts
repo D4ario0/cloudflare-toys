@@ -22,8 +22,10 @@ export type KVCacheOperation = "read" | "write" | "deserialize";
 export type CloudflareKVCacheOptions = {
   prefix?: string;
   defaultTtlSeconds?: number;
-  strategy?: "explicit" | "all";
-  onError?: (error: unknown, operation: KVCacheOperation) => void;
+  onError?: (
+    error: unknown,
+    operation: KVCacheOperation,
+  ) => void | Promise<void>;
 };
 
 type KVExpiration = { expiration: number } | { expirationTtl: number };
@@ -31,7 +33,6 @@ type KVExpiration = { expiration: number } | { expirationTtl: number };
 export class CloudflareKVCache extends Cache {
   readonly #kv: KVCacheBinding;
   readonly #prefix: string;
-  readonly #strategy: "explicit" | "all";
   readonly #defaultExpiration: KVExpiration | undefined;
   readonly #onError: CloudflareKVCacheOptions["onError"] | undefined;
 
@@ -39,15 +40,14 @@ export class CloudflareKVCache extends Cache {
     super();
     this.#kv = kv;
     this.#prefix = validatePrefix(options.prefix ?? "drizzle");
-    this.#strategy = options.strategy ?? "explicit";
     this.#onError = options.onError;
     this.#defaultExpiration = options.defaultTtlSeconds === undefined
       ? undefined
       : toRelativeExpiration(options.defaultTtlSeconds, "defaultTtlSeconds");
   }
 
-  strategy(): "explicit" | "all" {
-    return this.#strategy;
+  strategy(): "explicit" {
+    return "explicit";
   }
 
   async get(
@@ -124,7 +124,7 @@ export class CloudflareKVCache extends Cache {
   #report(error: unknown, operation: KVCacheOperation): void {
     if (this.#onError) {
       try {
-        this.#onError(error, operation);
+        void Promise.resolve(this.#onError(error, operation)).catch(() => {});
       } catch {
         // A cache error observer must not turn a fail-open operation into a failure.
       }
