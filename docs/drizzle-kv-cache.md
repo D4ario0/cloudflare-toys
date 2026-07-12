@@ -26,7 +26,7 @@ The binding is passed explicitly. The adapter does not read Worker globals or de
 
 ## Cache queries
 
-The default `explicit` strategy caches only opted-in queries. Workers KV cannot correctly maintain Drizzle's table-to-query reverse index, so every cached query must disable automatic invalidation:
+The adapter uses Drizzle's `explicit` strategy and caches only opted-in queries. Workers KV cannot correctly maintain Drizzle's table-to-query reverse index, so every cached query must disable automatic invalidation:
 
 ```ts
 const rows = await db
@@ -35,7 +35,7 @@ const rows = await db
   .$withCache({ autoInvalidate: false });
 ```
 
-Without a custom tag, Drizzle hashes the SQL and parameters to produce the query key. This is the appropriate identity for most exact query-result caches.
+Without a custom tag, Drizzle hashes the SQL and parameters to produce the query key. Generated keys are useful when TTL-bounded staleness is acceptable, but consumers cannot practically address them later for invalidation. Always give untagged entries an expiration unless the result is effectively immutable.
 
 A custom tag replaces the generated key and enables direct invalidation:
 
@@ -51,9 +51,18 @@ await db.$cache.invalidate({ tags: ["items:active", "items:recent"] });
 
 Tags are opaque application-defined cache identities. They may describe any useful scope, but they are not authorization boundaries. Do not reuse a tag for queries whose results differ.
 
-## Strategies
+## Operational observations
 
-`strategy: "explicit"` is the default and recommended mode. `strategy: "all"` asks Drizzle to cache every supported select. Because Drizzle enables automatic invalidation for global caching and KV cannot provide it, global queries must explicitly override caching behavior or they will be rejected. Use `"all"` only where all query sites are controlled and manual invalidation plus TTL-bounded staleness is acceptable.
+- The adapter is explicit-only. A query is cached only when it calls `.$withCache(...)`.
+- Every cached query must set `autoInvalidate: false`. Automatic table invalidation cannot be implemented reliably with Workers KV alone.
+- Generated query keys are internal to Drizzle. Untagged entries can expire, but consumers cannot practically target them for later invalidation.
+- Use a tag whenever a mutation must invalidate a result. The tag must represent the complete result identity, including relevant filters, pagination, locale, or other dimensions.
+- `db.$cache.invalidate({ tables: ... })` is a no-op. Drizzle sends explicit table invalidation and automatic mutation notifications through the same callback, so rejecting one would also make ordinary mutations fail.
+- `db.$cache.invalidate({ tags: ... })` deletes the corresponding tag keys directly and rejects if a KV deletion fails.
+- KV propagation remains eventually consistent. A successful deletion does not guarantee that every location immediately stops serving a previously cached value.
+- Cache tags isolate stored identities, not users or permissions. Authorization must be enforced independently before returning cached data.
+
+Use a custom tag for any result that must be invalidated after a mutation. Tags should identify the complete result scope, including any filters or other dimensions that change the returned data.
 
 ## Expiration
 
@@ -70,12 +79,14 @@ Workers KV requires expiration targets to be at least 60 seconds in the future. 
 
 ## Invalidation and consistency
 
-Tag invalidation deletes tag keys directly. Table invalidation and Drizzle's automatic invalidation are unsupported. The adapter does not maintain a reverse index because KV has no atomic read-modify-write primitive; concurrent writers could lose dependencies, while index growth and expiration would add further correctness problems.
+Tag invalidation deletes tag keys directly. Table invalidation and Drizzle's automatic invalidation are unsupported. Drizzle uses the same `onMutate({ tables })` callback for automatic mutation notifications and explicit `db.$cache.invalidate({ tables })` calls, so the adapter cannot distinguish them. Table-only callbacks are therefore documented no-ops; throwing would make every ordinary insert, update, and delete fail while the cache is configured. Use explicit tags for invalidation.
+
+The adapter does not maintain a reverse index because KV has no atomic read-modify-write primitive; concurrent writers could lose dependencies, while index growth and expiration would add further correctness problems.
 
 Workers KV is eventually consistent. Writes and deletions can take 60 seconds or more to become visible in other locations, and negative reads are cached. Explicit invalidation therefore does not provide globally immediate read-after-delete consistency. Use this adapter only when bounded stale reads are acceptable.
 
 ## Failures
 
-Cache reads, writes, serialization failures, and malformed stored values fail open so the database remains the source of truth. They call `onError(error, operation)` when configured, otherwise they are logged with `console.error`. Explicit invalidation failures reject because continuing can leave known-stale data cached. Unsupported configuration also rejects.
+Cache reads, writes, serialization failures, and malformed stored values fail open so the database remains the source of truth. They call `onError(error, operation)` when configured, otherwise they are logged with `console.error`. The observer may be synchronous or asynchronous; its failures are ignored to preserve fail-open behavior. Explicit tag invalidation failures reject because continuing can leave known-stale data cached. Unsupported configuration also rejects.
 
 Only JSON-compatible query results round-trip faithfully. Dates, binary values, class instances, `bigint`, and other non-JSON values require conversion by the query/driver before caching.
