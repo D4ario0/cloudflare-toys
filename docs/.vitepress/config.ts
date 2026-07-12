@@ -1,10 +1,15 @@
 import { defineConfig } from "vitepress";
+import llmstxt from "vitepress-plugin-llms";
 
 export default defineConfig({
   title: "cloudflare-toys",
   description: "Small typed helpers for Cloudflare Workers-adjacent projects.",
   base: "/cloudflare-toys/",
   cleanUrls: true,
+  vite: {
+    // @ts-expect-error VitePress alpha and the plugin resolve separate Vite type instances.
+    plugins: [llmstxt({ excludeIndexPage: false })],
+  },
   themeConfig: {
     nav: [
       { text: "Guide", link: "/" },
@@ -32,7 +37,10 @@ export default defineConfig({
       },
       {
         text: "Miscellaneous",
-        items: [{ text: "Better Auth", link: "/better-auth" }],
+        items: [
+          { text: "Better Auth", link: "/better-auth" },
+          { text: "Drizzle KV Cache", link: "/drizzle-kv-cache" },
+        ],
       },
     ],
     socialLinks: [

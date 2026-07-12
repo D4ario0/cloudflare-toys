@@ -101,11 +101,31 @@ const result = await wae.query(`
 ## Better Auth + Workers KV
 
 ```ts
-import { asSecondaryStorage } from "cloudflare-toys/misc/better-auth";
+import { asSecondaryStorage } from "cloudflare-toys/misc/better-auth/secondaryStorage";
 
 export const auth = betterAuth({
   secondaryStorage: asSecondaryStorage(env.AUTH_KV),
 });
+```
+
+## Drizzle query cache + Workers KV
+
+```ts
+import { cloudflareKVCache } from "cloudflare-toys/misc/drizzle/cache";
+
+const db = drizzle(connection, {
+  cache: cloudflareKVCache(env.QUERY_CACHE, {
+    prefix: "application",
+    defaultTtlSeconds: 300,
+  }),
+});
+
+await db.select().from(items).$withCache({
+  tag: "items:list",
+  autoInvalidate: false,
+});
+
+await db.$cache.invalidate({ tags: "items:list" });
 ```
 
 ## License
