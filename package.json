@@ -30,15 +30,20 @@
       "import": "./dist/wae/index.js",
       "default": "./dist/wae/index.js"
     },
-    "./misc/better-auth": {
-      "types": "./dist/miscellaneous/better-auth.d.ts",
-      "import": "./dist/misc/better-auth.js",
-      "default": "./dist/misc/better-auth.js"
+    "./misc/better-auth/secondaryStorage": {
+      "types": "./dist/misc/better-auth/secondaryStorage.d.ts",
+      "import": "./dist/misc/better-auth/secondaryStorage.js",
+      "default": "./dist/misc/better-auth/secondaryStorage.js"
+    },
+    "./misc/drizzle/cache": {
+      "types": "./dist/misc/drizzle/cache.d.ts",
+      "import": "./dist/misc/drizzle/cache.js",
+      "default": "./dist/misc/drizzle/cache.js"
     },
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rm -rf dist && bunx vite build && bunx tsc -p tsconfig.json",
+    "build": "tsdown",
     "typecheck": "bunx tsc -p tsconfig.json --noEmit",
     "check": "bun run typecheck",
     "docs:dev": "vitepress dev docs",
@@ -74,17 +79,23 @@
     "valibot": "^1.4.2"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260704.1",
+    "@cloudflare/workers-types": "^5.20260712.1",
     "better-auth": "^1.6.23",
+    "drizzle-orm": "^0.45.2",
+    "tsdown": "0.22.5",
     "typescript": "^6.0.3",
-    "vite": "^8.1.3",
-    "vitepress": "2.0.0-alpha.17"
+    "vitepress": "2.0.0-alpha.17",
+    "vitepress-plugin-llms": "^1.13.2"
   },
   "peerDependencies": {
-    "better-auth": ">=1.5.0 <2.0.0"
+    "better-auth": ">=1.5.0 <2.0.0",
+    "drizzle-orm": ">=0.45.0 <1.0.0 || >=1.0.0-rc.0 <1.0.0"
   },
   "peerDependenciesMeta": {
     "better-auth": {
+      "optional": true
+    },
+    "drizzle-orm": {
       "optional": true
     }
   }
