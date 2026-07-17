@@ -1,6 +1,6 @@
 {
   "name": "cloudflare-toys",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Small typed helpers for Cloudflare Workers, Images, and Workers Analytics Engine.",
   "type": "module",
   "sideEffects": false,
