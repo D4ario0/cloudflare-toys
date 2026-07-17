@@ -32,6 +32,10 @@ export default defineConfig({
         items: [{ text: "Turnstile", link: "/turnstile" }],
       },
       {
+        text: "Email",
+        items: [{ text: "Unemail", link: "/unemail" }],
+      },
+      {
         text: "Analytics",
         items: [{ text: "Workers Analytics Engine", link: "/wae" }],
       },

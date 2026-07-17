@@ -41,6 +41,7 @@ bun add cloudflare-toys
 - [`cloudflare-toys/images/storage`](/images) — Cloudflare Images hosted storage API client.
 - [`cloudflare-toys/images/variants`](/variants) — typed hosted image delivery variant URLs.
 - [`cloudflare-toys/turnstile`](/turnstile) — Turnstile Siteverify helper.
+- [`cloudflare-toys/unemail`](/unemail) — Unemail driver for Cloudflare Email Service's structured binding API.
 - [`cloudflare-toys/wae`](/wae) — Workers Analytics Engine SQL API client.
 - [`cloudflare-toys/misc/better-auth/secondaryStorage`](/better-auth) — Better Auth helper for Workers KV.
 - [`cloudflare-toys/misc/drizzle/cache`](/drizzle-kv-cache) — Drizzle query-cache adapter for Workers KV.

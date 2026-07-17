@@ -5,6 +5,7 @@ export default defineConfig({
     "images/storage": "src/images/storage.ts",
     "images/variants": "src/images/variants.ts",
     "turnstile/index": "src/turnstile/index.ts",
+    "unemail/index": "src/unemail/index.ts",
     "wae/index": "src/wae/index.ts",
     "misc/better-auth/secondaryStorage":
       "src/miscellaneous/better-auth/secondaryStorage.ts",
@@ -19,6 +20,10 @@ export default defineConfig({
   deps: {
     alwaysBundle: ["@better-fetch/fetch", "valibot"],
     onlyBundle: ["@better-fetch/fetch", "valibot"],
-    neverBundle: [/^better-auth(?:\/|$)/, /^drizzle-orm(?:\/|$)/],
+    neverBundle: [
+      /^better-auth(?:\/|$)/,
+      /^drizzle-orm(?:\/|$)/,
+      /^unemail(?:\/|$)/,
+    ],
   },
 });

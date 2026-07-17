@@ -30,6 +30,9 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      unemail:
+        specifier: ^0.5.0
+        version: 0.5.0
       vitepress:
         specifier: 2.0.0-alpha.17
         version: 2.0.0-alpha.17(lightningcss@1.32.0)(postcss@8.5.16)(typescript@6.0.3)
@@ -1673,6 +1676,10 @@ packages:
   unconfig-core@7.5.0:
     resolution: {integrity: sha512-Su3FauozOGP44ZmKdHy2oE6LPjk51M/TRRjHv2HNCWiDvfvCoxC2lno6jevMA91MYAdCdwP05QnWdWpSbncX/w==}
 
+  unemail@0.5.0:
+    resolution: {integrity: sha512-pTzgIYsCzYULYk1uoFEYL4GLQl9mCYLUQSZUvAt3DOBzR/QxoTkcDVB2qlvtY/80pOFU+KFQRlcT2NFjaAoz/g==}
+    engines: {node: '>=20.11.1'}
+
   unified@11.0.5:
     resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
 
@@ -3139,6 +3146,8 @@ snapshots:
     dependencies:
       '@quansync/fs': 1.0.0
       quansync: 1.0.0
+
+  unemail@0.5.0: {}
 
   unified@11.0.5:
     dependencies:
